@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Auth;
+use User;
+use Image;
+//use Illuminat\Support\Facades\File;
+use Storage;
+
+class UserController extends Controller
+{
+    public function profile(){
+    	return view('profile', array('user' => Auth::user()) );
+    }
+
+    public function update_avatar(Request $request){
+
+
+  	// Handle the user upload of avatar
+    	if($request->file('avatar')){
+    		$avatar = $request->file('avatar');
+            $filename = time() . '.' . $avatar->getClientOriginalExtension();
+            $path = Storage::disk('uploads/avatars/' . $filename);
+
+           // $path = Storage::disk('public')->put('uploads/avatars', $filename);
+
+            Image::make($avatar)->resize(150, 150)->save($path);
+
+            $user = Auth::user();
+    		$user->avatar = $path;
+    		$user->save();
+
+           //Image::make($avatar)->resize(300, 300);
+          //  $avatar->fill(['avatar' => asset($path)])->save();
+
+    	}
+
+    	return view('profile', array('user' => Auth::user()) );
+
+/*
+if($request->hasFile('avatar')){
+    $file = $request->file('avatar');
+    $name = time().$file->getClientOriginalName();
+
+    $file->move(public_path().'/lol/', $name);
+  // Image::make($file)->resize(150, 150)->save($name);
+    //
+    //$file->save();
+    $user = Auth::user();
+    $user->$name = $file;
+    $user->save();
+    }*/
+}
+}
+
